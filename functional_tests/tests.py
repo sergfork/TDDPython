@@ -152,7 +152,7 @@ class NewVisitorTest(LiveServerTestCase):
         # Фрэнсис начинает новый список, вводя новый элемент. Он менее
         # интересен, чем список Эдит...
         input_box = self.browser.find_element_by_id('id_new_item')
-        input_box.send_keys('Купить моолоко')
+        input_box.send_keys('Купить молоко')
         input_box.send_keys(Keys.ENTER)
         self.wait_for_row_in_list_table('1: Купить молоко')
 
