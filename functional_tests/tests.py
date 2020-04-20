@@ -31,7 +31,7 @@ class NewVisitorTest(LiveServerTestCase):
                     raise e
                 time.sleep(0.5)
 
-    def test_can_start_a_list_and_retrieve_it_later(self):
+    def some_test_can_start_a_list_and_retrieve_it_later(self):
         """тест: можно начать список и получить его позже"""
         # Эдит  слышала про крутое новое онлайн-приложение со списком
         # неотложных дел. Она решает оценить его домашеюю страницу
