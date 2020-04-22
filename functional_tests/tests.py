@@ -31,7 +31,7 @@ class NewVisitorTest(LiveServerTestCase):
                     raise e
                 time.sleep(0.5)
 
-    def some_test_can_start_a_list_and_retrieve_it_later(self):
+    def test_can_start_a_list_and_retrieve_it_later(self):
         """тест: можно начать список и получить его позже"""
         # Эдит  слышала про крутое новое онлайн-приложение со списком
         # неотложных дел. Она решает оценить его домашеюю страницу
@@ -71,7 +71,6 @@ class NewVisitorTest(LiveServerTestCase):
         # сайт сгенерировал для нее уникальный URL-адрес - об этоом
         # выводится небольшой текст с объяснениями.
 
-        self.fail('Закончить тест!')
         # Она посещает этот URL-адрес - ее список по-прежнему там.
 
         # Удовлетворенная, она снова ложится спать
@@ -167,3 +166,29 @@ class NewVisitorTest(LiveServerTestCase):
 
         # Удовлетворенные, они оба ложатся спать
 
+    def test_layout_and_styling(self):
+        """maket test and style decoration"""
+        # Эдит открывает домашнюю страницу
+        self.browser.get(self.live_server_url)
+        self.browser.set_window_size(1024, 768)
+
+        # Она замечает, что поле ввода аккуратно центрировано
+        input_box = self.browser.find_element_by_id('id_new_item')
+        self.assertAlmostEqual(
+            input_box.location['x'] + input_box.size['width'] / 2,
+            512,
+            delta=10
+        )
+
+        # Она начинает новый список и видит, что поле ввода там тоже
+        # аккуратно центрировано
+
+        input_box.send_keys('testing')
+        input_box.send_keys(Keys.ENTER)
+        self.wait_for_row_in_list_table('1: testing')
+        input_box = self.browser.find_element_by_id('id_new_item')
+        self.assertAlmostEqual(
+            input_box.location['x'] + input_box.size['width'] / 2,
+            512,
+            delta=10
+        )
