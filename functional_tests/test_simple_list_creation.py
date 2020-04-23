@@ -1,35 +1,10 @@
-from django.contrib.staticfiles.testing import StaticLiveServerTestCase
+from .base import FunctionalTest
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
-from selenium.common.exceptions import WebDriverException
-import time
 
 
-MAX_WAIT = 10
-class NewVisitorTest(StaticLiveServerTestCase):
+class NewVisitorTest(FunctionalTest):
     """тест нового посетителя"""
-
-    def setUp(self):
-        """установка"""
-        self.browser = webdriver.Firefox()
-
-    def tearDown(self):
-        """демонтаж"""
-        self.browser.quit()
-
-    def wait_for_row_in_list_table(self, row_text):
-        """wait for a row in table"""
-        start_time = time.time()
-        while True:
-            try:
-                table = self.browser.find_element_by_id('id_list_table')
-                rows = table.find_elements_by_tag_name('tr')
-                self.assertIn(row_text, [row.text for row in rows])
-                return
-            except(AssertionError, WebDriverException) as e:
-                if time.time() - start_time > MAX_WAIT:
-                    raise e
-                time.sleep(0.5)
 
     def test_can_start_a_list_for_one_user(self):
         """test: can start list for one user"""
@@ -93,15 +68,15 @@ class NewVisitorTest(StaticLiveServerTestCase):
 
         # Теперь новый пользователь, Фрэнсис, приходит на сайт.
 
-        ## Мы используем новый сеанс браузера, тем самым обеспечивая, чтобы никакая
-        ## информация от Эдит не пошла через данные cookie и пр.
+        # Мы используем новый сеанс браузера, тем самым обеспечивая, чтобы никакая
+        # информация от Эдит не пошла через данные cookie и пр.
         self.browser.quit()
         self.browser = webdriver.Firefox()
 
         # Фрэнсис посещает домашнюю страницу. Нет никаких признаков списка Эдит
         self.browser.get(self.live_server_url)
         page_text = self.browser.find_element_by_tag_name('body').text
-        self. assertNotIn('Купить павлиньи перья', page_text)
+        self.assertNotIn('Купить павлиньи перья', page_text)
         self.assertNotIn('Сделать мушку', page_text)
 
         # Фрэнсис начинает новый список, вводя новый элемент. Он менее
@@ -121,30 +96,3 @@ class NewVisitorTest(StaticLiveServerTestCase):
         self.assertIn('Купить молоко', page_text)
 
         # Удовлетворенные, они оба ложатся спать
-
-    def test_layout_and_styling(self):
-        """maket test and style decoration"""
-        # Эдит открывает домашнюю страницу
-        self.browser.get(self.live_server_url)
-        self.browser.set_window_size(1024, 768)
-
-        # Она замечает, что поле ввода аккуратно центрировано
-        input_box = self.browser.find_element_by_id('id_new_item')
-        self.assertAlmostEqual(
-            input_box.location['x'] + input_box.size['width'] / 2,
-            512,
-            delta=10
-        )
-
-        # Она начинает новый список и видит, что поле ввода там тоже
-        # аккуратно центрировано
-
-        input_box.send_keys('testing')
-        input_box.send_keys(Keys.ENTER)
-        self.wait_for_row_in_list_table('1: testing')
-        input_box = self.browser.find_element_by_id('id_new_item')
-        self.assertAlmostEqual(
-            input_box.location['x'] + input_box.size['width'] / 2,
-            512,
-            delta=10
-        )
