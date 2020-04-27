@@ -1,8 +1,10 @@
-from unittest import skip
 from django.test import TestCase
 from django.utils.html import escape
 from lists.models import Item, List
-from lists.forms import ItemForm, EMPTY_ITEM_ERROR
+from lists.forms import (
+    DUPLICATE_ITEM_ERROR, EMPTY_ITEM_ERROR,
+    ExistingListItemForm, ItemForm,
+)
 
 
 # Create your tests here.
@@ -47,7 +49,6 @@ class ListViewTest(TestCase):
 
     def test_passes_correct_list_to_template(self):
         """test: transfer right list template"""
-        other_list = List.objects.create()
         correct_list = List.objects.create()
         response = self.client.get(f'/lists/{correct_list.id}/')
         self.assertEqual(response.context['list'], correct_list)
@@ -83,7 +84,7 @@ class ListViewTest(TestCase):
         """test display form for item"""
         list_ = List.objects.create()
         response = self.client.get(f'/lists/{list_.id}/')
-        self.assertIsInstance(response.context['form'], ItemForm)
+        self.assertIsInstance(response.context['form'], ExistingListItemForm)
         self.assertContains(response, 'name="text"')
 
     def post_invalid_input(self):
@@ -108,14 +109,13 @@ class ListViewTest(TestCase):
     def test_for_invalid_input_passes_form_to_template(self):
         """test incorrect input: form is transferred to template"""
         response = self.post_invalid_input()
-        self.assertIsInstance(response.context['form'], ItemForm)
+        self.assertIsInstance(response.context['form'], ExistingListItemForm)
 
     def test_for_invalid_input_shows_on_page(self):
         """test incorrect input: error is shown on page"""
         response = self.post_invalid_input()
         self.assertContains(response, escape(EMPTY_ITEM_ERROR))
 
-    @skip
     def test_duplicate_item_validation_errors_end_up_on_lists_page(self):
         """test: validation errors on list page"""
         list1 = List.objects. create()
@@ -124,7 +124,7 @@ class ListViewTest(TestCase):
             f'/lists/{list1.id}/',
             data={'text': 'textey'}
         )
-        expected_error = escape("You've already got this in your list")
+        expected_error = escape(DUPLICATE_ITEM_ERROR)
 
         self.assertContains(response, expected_error)
         self.assertTemplateUsed(response, 'list.html')
